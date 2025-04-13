@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Задание 3: Создание инвертированного индекса и булев поиск
-# Суть: 
 # 1. Создаем инвертированный индекс из токенов файлов
 # 2. Реализуем булев поиск с операторами AND, OR, NOT
 # 3. Обрабатываем сложные запросы со скобками
@@ -75,6 +73,11 @@ else:
     html_files = [f for f in os.listdir(DATA_DIR) if f.endswith('.html')]
     
     print("Создание инвертированного индекса...")
+    # Создаем множество всех токенов для быстрого поиска
+    all_tokens_set = set(all_tokens)
+    
+    # Обрабатываем каждый HTML файл
+    file_count = 0
     for filename in html_files:
         doc_id = int(filename.split('_')[1].split('.')[0])  # Извлекаем ID документа из имени файла
         file_path = os.path.join(DATA_DIR, filename)
@@ -83,20 +86,27 @@ else:
         with open(file_path, 'r', encoding='utf-8') as file:
             content = file.read()
         
-        # Удаляем HTML теги
-        text = re.sub(r'<[^>]+>', ' ', content)
-        text = text.lower()
+        # Удаляем HTML теги и приводим к нижнему регистру
+        text = re.sub(r'<[^>]+>', ' ', content).lower()
         
-        # Проверяем каждый токен
-        for token in all_tokens:
-            # Если токен есть в тексте, добавляем doc_id в индекс
-            if re.search(r'\b' + re.escape(token) + r'\b', text):
-                if doc_id not in inverted_index[token]:
-                    inverted_index[token].append(doc_id)
-
-# Сортируем doc_id в каждом списке
-for token in inverted_index:
-    inverted_index[token].sort()
+        # Разбиваем текст на слова
+        words = set(re.findall(r'\b[а-яА-Яa-zA-Z]+\b', text))
+        
+        # Находим пересечение с нашими токенами (это намного быстрее, чем проверка каждого токена)
+        matching_tokens = words.intersection(all_tokens_set)
+        
+        # Добавляем doc_id в индекс для каждого найденного токена
+        for token in matching_tokens:
+            inverted_index[token].append(doc_id)
+        
+        # Обновляем счётчик обработанных файлов
+        file_count += 1
+        if file_count % 10 == 0:
+            print(f"Обработано {file_count} файлов")
+    
+    # Сортируем doc_id в каждом списке
+    for token in inverted_index:
+        inverted_index[token].sort()
 
 # Сохраняем индекс в JSON файл
 print(f"Сохранение индекса в файл {INDEX_FILE}...")
@@ -136,7 +146,7 @@ def tokenize_query(query):
             while i < len(query) and not query[i].isspace() and query[i] not in '()' and not query[i:i+3] in ['AND', 'OR', 'NOT']:
                 i += 1
             term = query[start:i]
-            tokens.append(term.lower())  # Приводим к нижнему регистру для регистронезависимого поиска
+            tokens.append(term.lower())  
     return tokens
 
 def evaluate_query(query, inverted_index, all_doc_ids):
@@ -153,7 +163,7 @@ def evaluate_expression(tokens, start, end, inverted_index, all_doc_ids):
     i = start
     last_operator = 'OR'  # По умолчанию используем OR
     first_term = True
-    next_is_not = False  # Флаг, чтобы обработать случай, когда NOT - первый оператор
+    next_is_not = False  
     
     while i < end:
         if tokens[i] == '(':
