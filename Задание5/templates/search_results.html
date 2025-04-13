@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Результаты поиска: {{ query }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <form action="/search" method="get" class="search-form">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control search-input" value="{{ query }}" placeholder="Введите поисковый запрос..." required>
+                <button type="submit" class="btn btn-primary search-button">Поиск</button>
+            </div>
+        </form>
+        
+        {% if results %}
+            <div class="search-time">
+                Найдено {{ results|length }} результатов за {{ "%.3f"|format(time) }} секунд
+            </div>
+            
+            {% for result in results %}
+                <div class="search-result">
+                    <h4>
+                        <a href="#" onclick="showDocument({{ result.id }}); return false;">
+                            {{ result.title }}
+                        </a>
+                    </h4>
+                    <div class="search-result-snippet">
+                        {{ result.snippet }}
+                    </div>
+                    <div class="search-result-url">
+                        Документ #{{ result.id }}
+                    </div>
+                    <div class="search-result-score">
+                        Релевантность: {{ "%.4f"|format(result.score) }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-results">
+                <h4>По запросу "{{ query }}" ничего не найдено</h4>
+                <p>Пожалуйста, попробуйте изменить запрос или использовать другие ключевые слова.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Модальное окно для отображения документа -->
+<div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="documentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="documentModalLabel">Документ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="documentContent">
+                Загрузка...
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Функция для отображения документа
+    function showDocument(docId) {
+        // Показываем модальное окно
+        const modal = new bootstrap.Modal(document.getElementById('documentModal'));
+        modal.show();
+        
+        // Заглушка для отображения ID документа
+        document.getElementById('documentModalLabel').textContent = 'Документ #' + docId;
+        document.getElementById('documentContent').innerHTML = 
+            '<div class="text-center">' +
+            '<p>Документ #' + docId + '</p>' +
+            '<p>Для просмотра полного содержимого документа обратитесь к оригинальному файлу.</p>' +
+            '</div>';
+    }
+</script>
+{% endblock %} 

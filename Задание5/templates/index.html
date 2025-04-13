@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Поисковая система{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <form action="/search" method="get" class="search-form">
+                    <div class="input-group">
+                        <input type="text" name="q" class="form-control search-input" placeholder="Введите поисковый запрос..." required>
+                        <button type="submit" class="btn btn-primary search-button">Поиск</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header">
+                О поисковой системе
+            </div>
+            <div class="card-body">
+                <p>
+                    Данная поисковая система реализует векторную модель поиска на основе TF-IDF. 
+                    Она использует косинусное сходство для ранжирования результатов по релевантности.
+                </p>
+                <p>
+                    Система поддерживает:
+                </p>
+                <ul>
+                    <li>Поиск по ключевым словам</li>
+                    <li>Ранжирование результатов по релевантности</li>
+                    <li>Лемматизацию запросов (приведение слов к начальной форме)</li>
+                    <li>Отображение фрагментов текста с найденными терминами</li>
+                </ul>
+                <p>
+                    Попробуйте выполнить поиск, используя ключевые слова, относящиеся к поисковым системам, 
+                    информационному поиску или технологиям векторного представления.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
