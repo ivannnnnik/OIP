@@ -24,4 +24,9 @@ env/
 
 # OS generated files
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Ignore large HTML files from crawler
+Задание_1/crawler/data/pages/*.html
+# Ignore archives
+*.tar.gz 

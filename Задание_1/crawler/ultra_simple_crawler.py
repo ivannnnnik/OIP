@@ -6,20 +6,15 @@ import requests
 from typing import List
 from bs4 import BeautifulSoup
 
-# Файл со списком URL
 urls_file = "config/urls.txt"
 
-# Директория для сохранения страниц
 pages_dir = "data/pages"
 
-# Файл индекса
 index_file = "data/index.txt"
 
-# Создаем директории, если их нет
 os.makedirs(pages_dir, exist_ok=True)
 os.makedirs(os.path.dirname(index_file), exist_ok=True)
 
-# Загрузка URL из файла
 def load_urls(file_path: str) -> List[str]:
     urls = []
     with open(file_path, 'r', encoding='utf-8') as f:
@@ -30,7 +25,6 @@ def load_urls(file_path: str) -> List[str]:
     print(f"Загружено {len(urls)} URL из файла {file_path}")
     return urls
 
-# Скачивание страницы
 def download_page(url: str) -> str:
     try:
         print(f"Загрузка страницы {url}")
@@ -47,7 +41,6 @@ def download_page(url: str) -> str:
         print(f"Ошибка при загрузке {url}: {e}")
         return ""
 
-# Сохранение страницы в файл
 def save_page(content: str, file_id: int) -> str:
     filename = f"page_{file_id:03d}.html"
     file_path = os.path.join(pages_dir, filename)
@@ -57,31 +50,23 @@ def save_page(content: str, file_id: int) -> str:
 
 # Основная функция
 def main():
-    # Загрузка URL
     urls = load_urls(urls_file)
     
-    # Создание индексного файла
     with open(index_file, 'w', encoding='utf-8') as index:
-        # Скачивание и сохранение страниц
         for i, url in enumerate(urls, 1):
-            if i > 100:  # Ограничение на 100 страниц
+            if i > 100:  
                 break
                 
-            # Скачивание страницы
             content = download_page(url)
             
-            # Если страница не скачалась, пропускаем
             if not content:
                 continue
                 
-            # Сохранение страницы
             file_path = save_page(content, i)
             print(f"Сохранена страница {i}: {url} -> {file_path}")
             
-            # Запись в индексный файл
             index.write(f"{i} {url}\n")
             
-            # Задержка между запросами
             delay = random.uniform(1.0, 3.0)
             time.sleep(delay)
     
